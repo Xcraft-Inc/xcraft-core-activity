@@ -10,6 +10,10 @@
     "xcraft",
     "activity"
   ],
+  "repository": {
+    "type": "file",
+    "url": "lib/xcraft-core-activity"
+  },
   "dependencies": {
     "xcraft-core-log": "0.1.0",
     "xcraft-core-busclient": "0.1.0",
