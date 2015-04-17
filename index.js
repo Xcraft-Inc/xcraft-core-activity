@@ -7,8 +7,8 @@ var xLog       = require ('xcraft-core-log') (moduleName);
 var FlakeId    = require ('flake-idgen');
 var flakeIdGen = new FlakeId ();
 
-var running    = null;
-var pending    = [];
+var running = null;
+var pending = [];
 
 
 var start = function (activity) {
@@ -25,7 +25,7 @@ var start = function (activity) {
       resolve ();
     });
 
-    // Effectively run action
+    /* Effectively run action */
     action (cmd, msg);
   });
 
@@ -59,11 +59,11 @@ exports.create = function (cmd, msg, action) {
 };
 
 exports.resume = function (id) {
-  // Todo:
+  /* TODO */
   console.log (id);
 };
 
 exports.destroy = function (id) {
-  // Todo:
+  /* TODO */
   console.log (id);
 };
