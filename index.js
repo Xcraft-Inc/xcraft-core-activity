@@ -2,7 +2,7 @@
 /* Xcraft activity manager */
 
 var moduleName = 'activity';
-var busClient  = require ('xcraft-core-busclient');
+var busClient  = require ('xcraft-core-busclient').global;
 var xLog       = require ('xcraft-core-log') (moduleName);
 var FlakeId    = require ('flake-idgen');
 var flakeIdGen = new FlakeId ();
