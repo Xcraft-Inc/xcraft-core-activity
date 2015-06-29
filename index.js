@@ -60,10 +60,10 @@ exports.create = function (cmd, msg, action) {
 
 exports.resume = function (id) {
   /* TODO */
-  console.log (id);
+  xLog.warn ('not implemented: ' + id);
 };
 
 exports.destroy = function (id) {
   /* TODO */
-  console.log (id);
+  xLog.warn ('not implemented: ' + id);
 };
