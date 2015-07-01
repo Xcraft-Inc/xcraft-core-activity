@@ -3,7 +3,6 @@
 /* Xcraft activity manager */
 var moduleName = 'activity';
 
-var busClient  = require ('xcraft-core-busclient').global;
 var xLog       = require ('xcraft-core-log') (moduleName);
 var FlakeId    = require ('flake-idgen');
 var flakeIdGen = new FlakeId ();
@@ -13,6 +12,8 @@ var pending = [];
 
 
 var start = function (activity) {
+  var busClient = require ('xcraft-core-busclient').getGlobal ();
+
   var msg = activity.msg;
   var cmd = activity.cmd;
   var action = activity.run;
