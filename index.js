@@ -3,12 +3,13 @@
 /* Xcraft activity manager */
 var moduleName = 'activity';
 
-var xLog       = require ('xcraft-core-log') (moduleName);
+var xLog       = require ('xcraft-core-log') (moduleName, null);
 var FlakeId    = require ('flake-idgen');
 var flakeIdGen = new FlakeId ();
 
 var running = null;
 var pending = [];
+const activityEndPromises = [];
 
 
 var start = function (activity) {
@@ -19,29 +20,32 @@ var start = function (activity) {
   var action = activity.run;
 
   running = activity;
-  busClient.events.send ('activity.started', activity);
 
-  var activityEndPromise = new Promise (function (resolve) {
+  activityEndPromises.push (new Promise (function (resolve) {
+    busClient.events.send ('greathall::activity.started', activity);
+
     var finishTopic = msg.orcName + '::' + cmd + '.finished';
     busClient.events.subscribe (finishTopic, function () {
-      resolve ();
+      resolve (activity);
     });
 
     /* Effectively run action */
     action (cmd, msg);
-  });
+  }));
 
-  activityEndPromise.then (function () {
-    busClient.events.send ('activity.finished', activity);
-    running = null;
-    if (pending.length > 0) {
-      var nextActivity = pending.shift ();
-      start (nextActivity);
-    }
+  Promise.all (activityEndPromises).then ((activities) => {
+    activities.forEach ((activity) => {
+      busClient.events.send ('greathall::activity.finished', activity);
+      running = null;
+      if (pending.length > 0) {
+        var nextActivity = pending.shift ();
+        start (nextActivity);
+      }
+    });
   });
 };
 
-exports.create = function (cmd, msg, action) {
+exports.create = function (cmd, msg, action, parallel) {
   flakeIdGen.next (function (err, id) {
     if (err) {
       xLog.err (err);
@@ -52,7 +56,7 @@ exports.create = function (cmd, msg, action) {
       msg: msg,
       run: action
     };
-    if (running) {
+    if (running && !parallel) {
       pending.push (activity);
     } else {
       start (activity);
