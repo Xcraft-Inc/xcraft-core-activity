@@ -46,10 +46,9 @@ class Activities extends EventEmitter {
     const busClient = require ('xcraft-core-busclient').getGlobal ();
 
     const activityName = this._getActivityName (activity);
+    const finishTopic = `${activityName}.finished`;
 
     xLog.verb (`start new activity for ${activityName}`);
-
-    const finishTopic = `${activityName}.finished`;
 
     busClient.events.send ('greathall::activity.started', activity);
     busClient.events.subscribe (finishTopic, () => {
