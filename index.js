@@ -1,75 +1,148 @@
 'use strict';
 
-/* Xcraft activity manager */
-var moduleName = 'activity';
+const moduleName = 'activity';
 
-var xLog       = require ('xcraft-core-log') (moduleName, null);
-var FlakeId    = require ('flake-idgen');
-var flakeIdGen = new FlakeId ();
+const EventEmitter = require ('events');
 
-var running = null;
-var pending = [];
-const activityEndPromises = [];
+const xLog      = require ('xcraft-core-log') (moduleName, null);
+const FlakeId   = require ('flake-idgen');
 
 
-var start = function (activity) {
-  var busClient = require ('xcraft-core-busclient').getGlobal ();
+class Activities extends EventEmitter {
+  constructor () {
+    super ();
 
-  var msg = activity.msg;
-  var cmd = activity.cmd;
-  var action = activity.run;
+    this._flakeIdGen = new FlakeId ();
+    this._waiting    = {};
+    this._running    = {};
 
-  running = activity;
+    /* Waiting list handling */
+    this.on ('wait', () => {
+      Object.keys (this._waiting).forEach ((id) => {
+        const activity = this._waiting[id];
 
-  activityEndPromises.push (new Promise (function (resolve) {
+        xLog.info (`try to execute ${this._getActivityName (activity)}`);
+
+        if (this._canExecute (activity)) {
+          delete this._waiting[id];
+          this.emit ('run', activity);
+        }
+      });
+    });
+
+    /* Running list handling */
+    this.on ('run', (activity) => {
+      this._running[activity.id] = activity;
+      this._run (activity);
+    });
+  }
+
+  _getActivityName (activity) {
+    return `${activity.msg.orcName}::${activity.cmd}`;
+  }
+
+  _run (activity) {
+    const busClient = require ('xcraft-core-busclient').getGlobal ();
+
+    const activityName = this._getActivityName (activity);
+
+    xLog.verb (`start new activity for ${activityName}`);
+
+    const finishTopic = `${activityName}.finished`;
+
     busClient.events.send ('greathall::activity.started', activity);
+    busClient.events.subscribe (finishTopic, () => {
+      delete this._running[activity.id];
+      busClient.events.send ('greathall::activity.ended', activity);
 
-    var finishTopic = msg.orcName + '::' + cmd + '.finished';
-    busClient.events.subscribe (finishTopic, function () {
-      resolve (activity);
+      xLog.verb (`end of activity ${activity.msg.orcName}@${activity.cmd}`);
+
+      /* Try to continue with the next activity. */
+      this.emit ('wait');
     });
 
     /* Effectively run action */
-    action (cmd, msg);
-  }));
+    activity.run (activity.cmd, activity.msg);
+  }
 
-  Promise.all (activityEndPromises).then ((activities) => {
-    activities.forEach ((activity) => {
-      busClient.events.send ('greathall::activity.finished', activity);
-      running = null;
-      if (pending.length > 0) {
-        var nextActivity = pending.shift ();
-        start (nextActivity);
-      }
+  _isRunning (activity) {
+    return Object.keys (this._running).findIndex ((id) => {
+      return this._running[id].msg.orcName === activity.msg.orcName &&
+             this._running[id].cmd         === activity.cmd;
+    }) !== -1;
+  }
+
+  _isParallel (activity) {
+    return activity.parallel;
+  }
+
+  _haveOnlyParallels () {
+    return !Object.keys (this._running).some ((id) => {
+      return !this._running[id].parallel;
     });
-  });
-};
+  }
 
-exports.create = function (cmd, msg, action, parallel) {
-  flakeIdGen.next (function (err, id) {
-    if (err) {
-      xLog.err (err);
+  /**
+   * Look if the activity can be executed.
+   *
+   * An activity can be executed only if:
+   * 1. The same command with the same orc is not already executing.
+   * 2.a The activity is parallel.
+   * 2.b Or no other exclusive activity is already executing.
+   *
+   * @param {Object} activity
+   * @return {boolean} if it can be executed.
+   */
+  _canExecute (activity) {
+    const activityName = this._getActivityName (activity);
+
+    /* Only one command by Orc at a time. */
+    if (this._isRunning (activity)) {
+      xLog.warn (`${activityName} already running`);
+      return false;
     }
-    var activity = {
+
+    /* Always possible for parallel activities. */
+    if (this._isParallel (activity)) {
+      return true;
+    }
+
+    /* If only parallel activities are running,
+     * this activity can be executed.
+     */
+    if (this._haveOnlyParallels ()) {
+      return true;
+    }
+
+    xLog.warn (`stay in waiting list: ${activityName}`);
+    return false;
+  }
+
+  execute (cmd, msg, action, parallel) {
+    const id = this._flakeIdGen.next ();
+
+    this._waiting[id] = {
       id: id,
       cmd: cmd,
       msg: msg,
-      run: action
+      run: action,
+      parallel: parallel
     };
-    if (running && !parallel) {
-      pending.push (activity);
-    } else {
-      start (activity);
-    }
-  });
-};
 
-exports.resume = function (id) {
-  /* TODO */
-  xLog.warn ('not implemented: ' + id);
-};
+    this.emit ('wait');
+  }
 
-exports.destroy = function (id) {
-  /* TODO */
-  xLog.warn ('not implemented: ' + id);
-};
+  pause (id) {
+    xLog.warn ('pause not implemented: ' + id);
+  }
+
+  resume (id) {
+    xLog.warn ('resume not implemented: ' + id);
+  }
+
+  kill (id) {
+    xLog.warn ('kill not implemented: ' + id);
+  }
+}
+
+module.exports = new Activities ();
