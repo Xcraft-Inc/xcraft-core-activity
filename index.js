@@ -5,6 +5,7 @@ const moduleName = 'activity';
 const EventEmitter = require ('events');
 
 const xLog      = require ('xcraft-core-log') (moduleName, null);
+const intformat = require ('biguint-format');
 const FlakeId   = require ('flake-idgen');
 
 
@@ -119,7 +120,7 @@ class Activities extends EventEmitter {
   }
 
   execute (cmd, msg, action, parallel) {
-    const id = this._flakeIdGen.next ();
+    const id = intformat (this._flakeIdGen.next (), 'hex');
 
     this._waiting[id] = {
       id: id,

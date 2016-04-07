@@ -15,6 +15,7 @@
     "url": "lib/xcraft-core-activity"
   },
   "dependencies": {
+    "biguint-format": "^1.0.0",
     "flake-idgen": "^1.0.0",
     "xcraft-core-busclient": "0.1.0",
     "xcraft-core-log": "0.1.0"
