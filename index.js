@@ -14,26 +14,24 @@ class Activities extends EventEmitter {
     super ();
 
     this._flakeIdGen = new FlakeId ();
-    this._waiting    = {};
-    this._running    = {};
+    this._waiting    = new Map ();
+    this._running    = new Map ();
 
     /* Waiting list handling */
     this.on ('wait', () => {
-      Object.keys (this._waiting).forEach ((id) => {
-        const activity = this._waiting[id];
-
+      for (const activity of this._waiting.values ()) {
         xLog.info (`try to execute ${this._getActivityName (activity)}`);
 
         if (this._canExecute (activity)) {
-          delete this._waiting[id];
+          this._waiting.delete (activity.id);
           this.emit ('run', activity);
         }
-      });
+      }
     });
 
     /* Running list handling */
     this.on ('run', (activity) => {
-      this._running[activity.id] = activity;
+      this._running.set (activity.id, activity);
       this._run (activity);
     });
   }
@@ -52,7 +50,7 @@ class Activities extends EventEmitter {
 
     busClient.events.send ('greathall::activity.started', activity);
     busClient.events.subscribe (finishTopic, () => {
-      delete this._running[activity.id];
+      this._running.delete (activity.id);
       busClient.events.send ('greathall::activity.ended', activity);
 
       xLog.verb (`end of activity ${activity.msg.orcName}@${activity.cmd}`);
@@ -66,9 +64,9 @@ class Activities extends EventEmitter {
   }
 
   _isRunning (activity) {
-    return Object.keys (this._running).findIndex ((id) => {
-      return this._running[id].msg.orcName === activity.msg.orcName &&
-             this._running[id].cmd         === activity.cmd;
+    return Array.from (this._running.values ()).findIndex ((runAct) => {
+      return runAct.msg.orcName === activity.msg.orcName &&
+             runAct.cmd         === activity.cmd;
     }) !== -1;
   }
 
@@ -77,8 +75,8 @@ class Activities extends EventEmitter {
   }
 
   _haveOnlyParallels () {
-    return !Object.keys (this._running).some ((id) => {
-      return !this._running[id].parallel;
+    return !Array.from (this._running.values ()).some ((runAct) => {
+      return !runAct.parallel;
     });
   }
 
@@ -121,13 +119,13 @@ class Activities extends EventEmitter {
   execute (cmd, msg, action, parallel) {
     const id = intformat (this._flakeIdGen.next (), 'hex');
 
-    this._waiting[id] = {
+    this._waiting.set (id, {
       id: id,
       cmd: cmd,
       msg: msg,
       run: action,
       parallel: parallel
-    };
+    });
 
     this.emit ('wait');
   }
