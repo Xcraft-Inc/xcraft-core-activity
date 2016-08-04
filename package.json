@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "description": "Xcraft activity manager",
   "main": "index.js",
+  "engines": {
+    "node": ">=6"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -11,8 +14,8 @@
     "activity"
   ],
   "repository": {
-    "type": "file",
-    "url": "lib/xcraft-core-activity"
+    "type": "git",
+    "url": "git+https://github.com/Xcraft-Inc/xcraft-core-activity.git"
   },
   "dependencies": {
     "biguint-format": "^1.0.0",
@@ -20,6 +23,10 @@
     "xcraft-core-busclient": "0.1.0",
     "xcraft-core-log": "0.1.0"
   },
-  "author": "Samuel Loup",
-  "license": "MIT"
+  "author": "Mathieu Schroeter & Samuel Loup",
+  "license": "MIT",
+   "bugs": {
+    "url": "https://github.com/Xcraft-Inc/xcraft-core-activity/issues"
+  },
+  "homepage": "https://github.com/Xcraft-Inc/xcraft-core-activity#readme"
 }
