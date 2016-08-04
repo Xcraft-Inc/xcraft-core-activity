@@ -25,7 +25,7 @@
   },
   "author": "Mathieu Schroeter & Samuel Loup",
   "license": "MIT",
-   "bugs": {
+  "bugs": {
     "url": "https://github.com/Xcraft-Inc/xcraft-core-activity/issues"
   },
   "homepage": "https://github.com/Xcraft-Inc/xcraft-core-activity#readme"
