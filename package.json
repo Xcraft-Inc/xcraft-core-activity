@@ -1,6 +1,6 @@
 {
   "name": "xcraft-core-activity",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Xcraft activity manager",
   "main": "index.js",
   "engines": {
@@ -20,8 +20,8 @@
   "dependencies": {
     "biguint-format": "^1.0.0",
     "flake-idgen": "^1.0.0",
-    "xcraft-core-busclient": "0.1.0",
-    "xcraft-core-log": "0.1.0"
+    "xcraft-core-busclient": "^1.0.0",
+    "xcraft-core-log": "^1.0.0"
   },
   "author": "Mathieu Schroeter & Samuel Loup",
   "license": "MIT",
