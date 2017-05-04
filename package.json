@@ -2,7 +2,7 @@
   "name": "xcraft-core-activity",
   "version": "1.0.3",
   "description": "Xcraft activity manager",
-  "main": "index.js",
+  "main": "lib/index.js",
   "engines": {
     "node": ">=6"
   },
