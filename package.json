@@ -17,6 +17,11 @@
     "type": "git",
     "url": "git+https://github.com/Xcraft-Inc/xcraft-core-activity.git"
   },
+  "config": {
+    "xcraft": {
+      "commands": true
+    }
+  },
   "dependencies": {
     "biguint-format": "^1.0.0",
     "flake-idgen": "^1.0.0",
