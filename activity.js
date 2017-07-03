@@ -7,7 +7,7 @@ const cmd = {};
 cmd.status = function (msg, resp) {
   const status = activity.status ();
   resp.events.send ('activity.status', status);
-  resp.events.send ('activity.status.finished');
+  resp.events.send (`activity.status.${msg.id}.finished`);
 };
 
 /**
