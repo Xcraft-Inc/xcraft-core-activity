@@ -36,7 +36,7 @@
   },
   "homepage": "https://github.com/Xcraft-Inc/xcraft-core-activity#readme",
   "devDependencies": {
-    "xcraft-dev-rules": "^0.2.0",
-    "prettier": "1.12.1"
+    "xcraft-dev-rules": "^0.3.0",
+    "prettier": "1.15.1"
   }
 }
