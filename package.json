@@ -27,7 +27,7 @@
     "flake-idgen": "^1.1.0",
     "xcraft-core-busclient": "^2.0.0",
     "xcraft-core-log": "^1.0.0",
-    "xcraft-core-utils": "^1.1.0"
+    "xcraft-core-utils": "^2.0.0"
   },
   "author": "Mathieu Schroeter & Samuel Loup",
   "license": "MIT",
