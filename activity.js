@@ -4,7 +4,7 @@ const activity = require('.');
 
 const cmd = {};
 
-cmd.status = function(msg, resp) {
+cmd.status = function (msg, resp) {
   const status = activity.status();
   resp.events.send('activity.status', status);
   resp.events.send(`activity.status.${msg.id}.finished`);
@@ -15,7 +15,7 @@ cmd.status = function(msg, resp) {
  *
  * @returns {Object} The list and definitions of commands.
  */
-exports.xcraftCommands = function() {
+exports.xcraftCommands = function () {
   return {
     handlers: cmd,
     rc: {
