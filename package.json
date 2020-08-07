@@ -1,6 +1,6 @@
 {
   "name": "xcraft-core-activity",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "Xcraft activity manager",
   "main": "lib/index.js",
   "engines": {
